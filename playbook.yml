@@ -24,6 +24,9 @@
     - name: Arduino CLI
       include_tasks: tasks/arduino-cli.yml
 
+    - name: C/C++ project generator
+      include_tasks: tasks/generate-c-cpp-project.yml
+
 - name: User-level setup
   hosts: local
   become: false

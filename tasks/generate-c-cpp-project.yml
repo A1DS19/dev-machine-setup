@@ -1,0 +1,16 @@
+---
+# https://github.com/A1DS19/generate-c-cpp-project
+
+- name: Install generate-c-project to /usr/local/bin
+  get_url:
+    url: https://raw.githubusercontent.com/A1DS19/generate-c-cpp-project/main/generate-c-project.sh
+    dest: /usr/local/bin/generate-c-project
+    mode: '0755'
+    force: false
+
+- name: Install generate-cpp-project to /usr/local/bin
+  get_url:
+    url: https://raw.githubusercontent.com/A1DS19/generate-c-cpp-project/main/generate-cpp-project.sh
+    dest: /usr/local/bin/generate-cpp-project
+    mode: '0755'
+    force: false
