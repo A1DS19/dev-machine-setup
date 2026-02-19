@@ -29,14 +29,17 @@
       # Node (for lvim LSP tools)
       - nodejs
       - npm
-      # ESP-IDF prereqs
+      # ESP-IDF prereqs (per official docs)
       - flex
       - bison
       - gperf
       - python3-setuptools
+      - python3-venv
       - dfu-util
       - libusbx
       - libusb1-devel
+      - libffi-devel
+      - openssl-devel
       # USB/serial (embedded)
       - minicom
       - screen

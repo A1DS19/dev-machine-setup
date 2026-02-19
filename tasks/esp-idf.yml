@@ -1,5 +1,7 @@
 ---
-- name: Create esp directory
+# https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/linux-macos-setup.html
+
+- name: Create ~/esp directory
   file:
     path: "{{ user_home }}/esp"
     state: directory
@@ -9,27 +11,36 @@
     path: "{{ user_home }}/esp/esp-idf"
   register: espidf_dir
 
-- name: Clone ESP-IDF
+- name: Clone ESP-IDF v5.5.3
   git:
     repo: https://github.com/espressif/esp-idf.git
     dest: "{{ user_home }}/esp/esp-idf"
+    version: v5.5.3
     recursive: yes
-    depth: 1
   when: not espidf_dir.stat.exists
 
-- name: Check if ESP-IDF is already installed
+- name: Check if ESP-IDF tools are already installed
   stat:
     path: "{{ user_home }}/.espressif/tools"
   register: espidf_tools
 
-- name: Run ESP-IDF install script
-  shell: "{{ user_home }}/esp/esp-idf/install.sh all"
+- name: Run ESP-IDF install script (esp32 target)
+  # To add more targets: ./install.sh esp32,esp32s2,esp32s3
+  shell: "{{ user_home }}/esp/esp-idf/install.sh esp32"
   when: not espidf_tools.stat.exists
   args:
     executable: /bin/bash
 
-- name: Add ESP-IDF alias to .bashrc
+- name: Add get_idf alias to .bashrc
   lineinfile:
     path: "{{ user_home }}/.bashrc"
     line: 'alias get_idf=". $HOME/esp/esp-idf/export.sh"'
     state: present
+
+- name: Add get_idf alias to .zshrc (if exists)
+  lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    line: 'alias get_idf=". $HOME/esp/esp-idf/export.sh"'
+    state: present
+    create: no
+  failed_when: false
