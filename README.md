@@ -1,6 +1,6 @@
 # Dev Machine Setup
 
-Ansible playbook to automate a developer environment.
+Ansible playbook to automate my developer environment.
 
 ## What gets installed
 
