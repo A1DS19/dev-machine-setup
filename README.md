@@ -71,7 +71,6 @@ Run this **from your old machine**, replacing `user@ip` with your new machine's 
 
 This copies:
 - `~/projects/` → all your projects
-- `~/.config/lvim/` → LunarVim config
 
 ---
 
@@ -127,8 +126,6 @@ dev-machine-setup/
 ├── playbook.yml          # main playbook
 ├── inventory.ini         # localhost target
 ├── sync.sh               # migrate files from old machine
-├── dotfiles/
-│   └── lvim/             # LunarVim config
 └── tasks/
     ├── dnf.yml
     ├── chrome.yml
