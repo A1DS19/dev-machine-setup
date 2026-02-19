@@ -13,11 +13,6 @@ if [ -z "$TARGET" ]; then
   exit 1
 fi
 
-echo "→ Copying lvim config..."
-rsync -avz --progress \
-  ~/.config/lvim/ \
-  $TARGET:~/.config/lvim/
-
 echo "→ Copying projects..."
 rsync -avz --progress \
   --exclude='.git' \
