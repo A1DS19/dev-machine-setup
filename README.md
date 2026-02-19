@@ -1,6 +1,6 @@
 # Dev Machine Setup
 
-Ansible playbook to automate a full Fedora Workstation developer environment.
+Ansible playbook to automate a developer environment.
 
 ## What gets installed
 
@@ -13,7 +13,6 @@ Ansible playbook to automate a full Fedora Workstation developer environment.
 | **Embedded** | ESP-IDF v5.5.3, Arduino CLI, KiCad, generate-c/cpp-project |
 | **Containers** | Docker CE + Compose plugin |
 | **Languages** | Python 3, Node.js, pnpm, Anaconda/Conda |
-| **AI CLIs** | Claude Code, Gemini CLI, Codex CLI |
 | **Apps** | DataGrip, Android Studio, Postman |
 
 ---
@@ -106,17 +105,7 @@ Conda is initialized in `.bashrc`. Restart your terminal or run:
 ```bash
 source ~/.bashrc
 conda --version
-```
-
-### AI CLIs
-Each tool requires authentication after install:
-
-```bash
-claude       # follow OAuth login prompt
-gemini       # follow Google login prompt
-codex        # set OPENAI_API_KEY in your environment
-```
-
+``
 ---
 
 ## Repo structure
