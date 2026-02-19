@@ -1,0 +1,23 @@
+---
+- name: Check if Claude Code is already installed
+  stat:
+    path: "{{ user_home }}/.local/bin/claude"
+  register: claude_bin
+
+- name: Install Claude Code
+  shell: curl -fsSL https://claude.ai/install.sh | bash
+  when: not claude_bin.stat.exists
+  args:
+    executable: /bin/bash
+
+- name: Install Gemini CLI
+  community.general.npm:
+    name: "@google/gemini-cli"
+    global: true
+    state: present
+
+- name: Install Codex CLI
+  community.general.npm:
+    name: "@openai/codex"
+    global: true
+    state: present

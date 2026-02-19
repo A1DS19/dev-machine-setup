@@ -1,0 +1,18 @@
+---
+- name: Ensure ~/.config/nvim directory is absent before clone
+  file:
+    path: "{{ user_home }}/.config/nvim"
+    state: absent
+  when: false  # only run manually if you want to reset config
+
+- name: Check if nvim config already exists
+  stat:
+    path: "{{ user_home }}/.config/nvim"
+  register: nvim_config_dir
+
+- name: Clone nvim config
+  git:
+    repo: https://github.com/A1DS19/nvim-config.git
+    dest: "{{ user_home }}/.config/nvim"
+    update: yes
+  when: not nvim_config_dir.stat.exists

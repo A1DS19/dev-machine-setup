@@ -15,6 +15,9 @@
     - name: Google Chrome
       include_tasks: tasks/chrome.yml
 
+    - name: VSCode
+      include_tasks: tasks/vscode.yml
+
     - name: Docker CE
       include_tasks: tasks/docker.yml
 
@@ -30,7 +33,7 @@
     username: "{{ ansible_env.USER }}"
 
   tasks:
-    - name: Flatpak apps
+    - name: Flatpak apps (Warp, DataGrip, Android Studio, Postman)
       include_tasks: tasks/flatpaks.yml
 
     - name: pnpm
@@ -44,3 +47,9 @@
 
     - name: LunarVim
       include_tasks: tasks/lvim.yml
+
+    - name: Neovim config
+      include_tasks: tasks/neovim-config.yml
+
+    - name: AI CLIs (Claude, Gemini, Codex)
+      include_tasks: tasks/ai-clis.yml
