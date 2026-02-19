@@ -12,14 +12,14 @@
   args:
     executable: /bin/bash
 
-- name: Ensure lvim config directory exists
-  file:
+- name: Check if lvim config already exists
+  stat:
     path: "{{ user_home }}/.config/lvim"
-    state: directory
+  register: lvim_config_dir
 
-- name: Copy LunarVim config
-  synchronize:
-    src: "{{ playbook_dir }}/dotfiles/lvim/"
-    dest: "{{ user_home }}/.config/lvim/"
-    recursive: yes
-    delete: no
+- name: Clone lvim config
+  git:
+    repo: https://github.com/A1DS19/lvim-config.git
+    dest: "{{ user_home }}/.config/lvim"
+    update: yes
+  when: not lvim_config_dir.stat.exists
