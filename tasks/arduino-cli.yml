@@ -1,0 +1,12 @@
+---
+- name: Check if arduino-cli is already installed
+  stat:
+    path: /usr/local/bin/arduino-cli
+  register: arduino_bin
+
+- name: Download and install arduino-cli
+  shell: |
+    curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=/usr/local/bin sh
+  when: not arduino_bin.stat.exists
+  args:
+    executable: /bin/bash

@@ -1,0 +1,25 @@
+---
+- name: Check if LunarVim is already installed
+  stat:
+    path: "{{ user_home }}/.local/bin/lvim"
+  register: lvim_bin
+
+- name: Install LunarVim
+  shell: |
+    LV_BRANCH='release-1.4/neovim-0.9' \
+    bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh) --no-install-dependencies
+  when: not lvim_bin.stat.exists
+  args:
+    executable: /bin/bash
+
+- name: Ensure lvim config directory exists
+  file:
+    path: "{{ user_home }}/.config/lvim"
+    state: directory
+
+- name: Copy LunarVim config
+  synchronize:
+    src: "{{ playbook_dir }}/dotfiles/lvim/"
+    dest: "{{ user_home }}/.config/lvim/"
+    recursive: yes
+    delete: no

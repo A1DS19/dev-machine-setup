@@ -1,0 +1,44 @@
+---
+- name: Install base dev packages
+  dnf:
+    name:
+      # Build tools
+      - gcc
+      - gcc-c++
+      - cmake
+      - make
+      - clang
+      - clang-tools-extra
+      - ninja-build
+      - ccache
+      # EDA
+      - kicad
+      # Version control & utils
+      - git
+      - curl
+      - wget
+      - unzip
+      - tar
+      # Editor deps (neovim for lvim)
+      - neovim
+      - ripgrep
+      - fd-find
+      # Python
+      - python3
+      - python3-pip
+      # Node (for lvim LSP tools)
+      - nodejs
+      - npm
+      # ESP-IDF prereqs
+      - flex
+      - bison
+      - gperf
+      - python3-setuptools
+      - dfu-util
+      - libusbx
+      - libusb1-devel
+      # USB/serial (embedded)
+      - minicom
+      - screen
+    state: present
+    update_cache: true

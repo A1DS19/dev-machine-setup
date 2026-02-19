@@ -1,0 +1,46 @@
+---
+# ─────────────────────────────────────────────
+#  Dev Machine Setup — Fedora Workstation
+#  Usage: ansible-playbook playbook.yml --ask-become-pass
+# ─────────────────────────────────────────────
+
+- name: System-level setup
+  hosts: local
+  become: true
+
+  tasks:
+    - name: DNF packages
+      include_tasks: tasks/dnf.yml
+
+    - name: Google Chrome
+      include_tasks: tasks/chrome.yml
+
+    - name: Docker CE
+      include_tasks: tasks/docker.yml
+
+    - name: Arduino CLI
+      include_tasks: tasks/arduino-cli.yml
+
+- name: User-level setup
+  hosts: local
+  become: false
+
+  vars:
+    user_home: "{{ ansible_env.HOME }}"
+    username: "{{ ansible_env.USER }}"
+
+  tasks:
+    - name: Flatpak apps
+      include_tasks: tasks/flatpaks.yml
+
+    - name: pnpm
+      include_tasks: tasks/pnpm.yml
+
+    - name: ESP-IDF
+      include_tasks: tasks/esp-idf.yml
+
+    - name: Anaconda
+      include_tasks: tasks/anaconda.yml
+
+    - name: LunarVim
+      include_tasks: tasks/lvim.yml

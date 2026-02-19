@@ -1,0 +1,30 @@
+---
+- name: Check if Anaconda is already installed
+  stat:
+    path: "{{ user_home }}/anaconda3"
+  register: anaconda_dir
+
+- name: Download Anaconda installer
+  get_url:
+    url: https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
+    dest: /tmp/anaconda_installer.sh
+    mode: '0755'
+  when: not anaconda_dir.stat.exists
+
+- name: Run Anaconda installer
+  shell: bash /tmp/anaconda_installer.sh -b -p {{ user_home }}/anaconda3
+  when: not anaconda_dir.stat.exists
+  args:
+    executable: /bin/bash
+
+- name: Init conda for bash
+  shell: "{{ user_home }}/anaconda3/bin/conda init bash"
+  when: not anaconda_dir.stat.exists
+  args:
+    executable: /bin/bash
+
+- name: Cleanup installer
+  file:
+    path: /tmp/anaconda_installer.sh
+    state: absent
+  when: not anaconda_dir.stat.exists

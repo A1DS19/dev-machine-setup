@@ -1,0 +1,31 @@
+---
+- name: Add Docker CE repo
+  yum_repository:
+    name: docker-ce
+    description: Docker CE Stable
+    baseurl: https://download.docker.com/linux/fedora/$releasever/$basearch/stable
+    gpgkey: https://download.docker.com/linux/fedora/gpg
+    gpgcheck: yes
+    enabled: yes
+
+- name: Install Docker CE
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Enable and start Docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_env.SUDO_USER }}"
+    groups: docker
+    append: yes
