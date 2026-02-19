@@ -105,7 +105,7 @@ Conda is initialized in `.bashrc`. Restart your terminal or run:
 ```bash
 source ~/.bashrc
 conda --version
-``
+```
 ---
 
 ## Repo structure
