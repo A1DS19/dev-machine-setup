@@ -11,6 +11,7 @@
       - clang-tools-extra
       - ninja-build
       - ccache
+      - gdb
       # EDA
       - kicad
       # Version control & utils
