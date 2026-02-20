@@ -8,7 +8,7 @@ Ansible playbook to automate my developer environment.
 |----------|-------|
 | **Build tools** | GCC, G++, Clang, CMake, Make, Ninja, Ccache |
 | **Editors** | Neovim (+ config), VSCode, LunarVim |
-| **Terminal** | Warp |
+| **Terminal** | Warp, Zsh, Starship, lazygit (`lg`), yazi (`y`), btop, atuin, glow, ncdu, eza, bat, fzf, zoxide, git-delta |
 | **Browsers** | Google Chrome |
 | **Embedded** | ESP-IDF v5.5.3, Arduino CLI, KiCad, generate-c/cpp-project |
 | **Containers** | Docker CE + Compose plugin |
@@ -75,6 +75,17 @@ This copies:
 
 ## Post-install notes
 
+### Terminal aliases
+
+| Alias | Command | What it does |
+|-------|---------|--------------|
+| `ls` | `eza --icons --group-directories-first` | Better `ls` with icons |
+| `cat` | `bat --paging=never` | Syntax-highlighted file viewer |
+| `cd` | `zoxide` (`z`) | Smart directory jumping |
+| `lg` | `lazygit` | Terminal UI for git |
+| `y` | `yazi` | Terminal file manager |
+| `du` | `ncdu` | Interactive disk usage |
+
 ### ESP-IDF
 Source the environment before working on ESP32 projects. An alias is added to your shell automatically:
 
@@ -128,5 +139,6 @@ dev-machine-setup/
     ├── anaconda.yml
     ├── ai-clis.yml        # Claude, Gemini, Codex
     ├── neovim-config.yml
-    └── lvim.yml
+    ├── lvim.yml
+    └── terminal.yml       # Zsh, Starship, lazygit, yazi, atuin, nerd fonts, ...
 ```

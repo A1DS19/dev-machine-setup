@@ -1,10 +1,21 @@
 ---
+- name: Install dnf5-plugins (needed for config-manager)
+  dnf:
+    name: dnf5-plugins
+    state: present
+
+- name: Add GitHub CLI repo
+  command: dnf config-manager addrepo --from-repofile=https://cli.github.com/packages/rpm/gh-cli.repo
+  args:
+    creates: /etc/yum.repos.d/gh-cli.repo
+
 - name: Install base dev packages
   dnf:
     name:
       # Build tools
       - gcc
       - gcc-c++
+      - libasan
       - cmake
       - make
       - clang
@@ -16,6 +27,7 @@
       - kicad
       # Version control & utils
       - git
+      - gh
       - curl
       - wget
       - unzip
@@ -35,7 +47,7 @@
       - bison
       - gperf
       - python3-setuptools
-      - python3-venv
+      - python3-devel
       - dfu-util
       - libusbx
       - libusb1-devel

@@ -1,0 +1,158 @@
+---
+# 1. Install Warp Terminal
+- name: Install Warp Terminal from RPM URL
+  ansible.builtin.dnf:
+    name: "https://app.warp.dev/download?package=rpm"
+    state: present
+    disable_gpg_check: true
+  become: true
+
+# 2. Enable COPR repositories
+- name: Enable COPR repository for eza
+  ansible.builtin.command:
+    cmd: dnf5 copr enable -y alternateved/eza
+  changed_when: false
+  become: true
+
+- name: Enable COPR repository for lazygit
+  ansible.builtin.command:
+    cmd: dnf5 copr enable -y atim/lazygit
+  changed_when: false
+  become: true
+
+
+# 3. Install Productivity Tools
+- name: Install Shell Productivity Tools
+  ansible.builtin.dnf:
+    name:
+      - zsh
+      - fzf
+      - zoxide
+      - eza
+      - bat
+      - btop
+      - git-delta
+      - lazygit
+      - ncdu
+      - glow
+      - atuin
+      # yazi optional: previews for images, video, PDF, archives
+      - ffmpegthumbnailer
+      - unar
+      - poppler-utils
+      - ImageMagick
+      - jetbrains-mono-fonts
+    state: present
+  become: true
+  # Note: removed util-linux-user as it's likely already present
+  # and causing DNF5 conflict errors in the loop.
+
+# 4. Install Nerd Fonts (JetBrainsMono)
+- name: Create user fonts directory
+  ansible.builtin.file:
+    path: "~/.local/share/fonts/NerdFonts"
+    state: directory
+    mode: '0755'
+
+- name: Download JetBrainsMono Nerd Font
+  ansible.builtin.get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+    dest: "/tmp/JetBrainsMono-NerdFont.zip"
+    mode: '0644'
+
+- name: Unzip JetBrainsMono Nerd Font
+  ansible.builtin.unarchive:
+    src: "/tmp/JetBrainsMono-NerdFont.zip"
+    dest: "~/.local/share/fonts/NerdFonts"
+    remote_src: true
+    creates: "~/.local/share/fonts/NerdFonts/JetBrainsMonoNerdFont-Regular.ttf"
+
+- name: Refresh font cache
+  ansible.builtin.command:
+    cmd: fc-cache -fv
+  changed_when: false
+
+# 5. Install Yazi (terminal file manager) from GitHub releases
+- name: Download Yazi binary
+  ansible.builtin.get_url:
+    url: "https://github.com/sxyazi/yazi/releases/latest/download/yazi-x86_64-unknown-linux-musl.zip"
+    dest: "/tmp/yazi.zip"
+    mode: '0644'
+
+- name: Unzip Yazi
+  ansible.builtin.unarchive:
+    src: "/tmp/yazi.zip"
+    dest: "/tmp"
+    remote_src: true
+    creates: "/tmp/yazi-x86_64-unknown-linux-musl/yazi"
+
+- name: Install yazi and ya binaries
+  ansible.builtin.copy:
+    src: "/tmp/yazi-x86_64-unknown-linux-musl/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: '0755'
+    remote_src: true
+  loop:
+    - yazi
+    - ya
+  become: true
+
+# 6. Set Zsh as default shell
+- name: Set Zsh as default shell
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh
+  become: true
+
+# 7. Install Starship Prompt
+- name: Install Starship Prompt
+  ansible.builtin.shell: |
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+  become: true
+  args:
+    creates: /usr/local/bin/starship
+
+# 8. Configure .zshrc
+- name: Ensure .zshrc exists
+  ansible.builtin.file:
+    path: "~/.zshrc"
+    state: touch
+    mode: '0644'
+
+- name: Add aliases and tool inits to .zshrc
+  ansible.builtin.blockinfile:
+    path: "~/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: TERMINAL TOOLS"
+    block: |
+      # Better defaults
+      alias ls='eza --icons --group-directories-first'
+      alias cat='bat --paging=never'
+      alias cd='z'
+      alias lg='lazygit'
+      alias y='yazi'
+      alias du='ncdu'
+
+      # Prompt & Navigation
+      eval "$(starship init zsh)"
+      eval "$(zoxide init zsh)"
+      eval "$(atuin init zsh)"
+
+# 9. Configure git to use delta for diffs
+- name: Set delta as git pager
+  community.general.git_config:
+    name: core.pager
+    value: delta
+    scope: global
+
+- name: Configure delta in git
+  community.general.git_config:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    scope: global
+  loop:
+    - { name: "interactive.diffFilter", value: "delta --color-only" }
+    - { name: "delta.navigate",         value: "true" }
+    - { name: "delta.dark",             value: "true" }
+    - { name: "delta.line-numbers",     value: "true" }
+    - { name: "merge.conflictstyle",    value: "diff3" }
+    - { name: "diff.colorMoved",        value: "default" }

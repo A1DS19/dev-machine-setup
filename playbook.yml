@@ -36,7 +36,7 @@
     username: "{{ ansible_env.USER }}"
 
   tasks:
-    - name: Flatpak apps (Warp, DataGrip, Android Studio, Postman)
+    - name: Flatpak apps (DataGrip, Android Studio, Postman)
       include_tasks: tasks/flatpaks.yml
 
     - name: pnpm
@@ -56,3 +56,6 @@
 
     - name: AI CLIs (Claude, Gemini, Codex)
       include_tasks: tasks/ai-clis.yml
+    
+    - name: Warp Terminal
+      include_tasks: tasks/terminal.yml

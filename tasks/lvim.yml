@@ -12,14 +12,19 @@
   args:
     executable: /bin/bash
 
-- name: Check if lvim config already exists
+- name: Check if lvim config dir is a git repo
   stat:
+    path: "{{ user_home }}/.config/lvim/.git"
+  register: lvim_config_git
+
+- name: Remove non-git lvim config dir
+  file:
     path: "{{ user_home }}/.config/lvim"
-  register: lvim_config_dir
+    state: absent
+  when: not lvim_config_git.stat.exists
 
 - name: Clone lvim config
   git:
     repo: https://github.com/A1DS19/lvim-config.git
     dest: "{{ user_home }}/.config/lvim"
     update: yes
-  when: not lvim_config_dir.stat.exists

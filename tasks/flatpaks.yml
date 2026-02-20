@@ -12,7 +12,6 @@
     state: present
     method: user
   loop:
-    - dev.warp.Warp           # Warp terminal
     - com.jetbrains.DataGrip  # DataGrip
     - com.google.AndroidStudio # Android Studio
     - com.getpostman.Postman  # Postman
