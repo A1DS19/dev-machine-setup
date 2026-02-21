@@ -243,12 +243,11 @@
         exec zellij attach --create main
       fi
 
-# 13. tldr, thefuck, mise
-- name: Install tldr and thefuck
+# 13. tldr, mise
+- name: Install tldr
   ansible.builtin.dnf:
     name:
       - tldr
-      - thefuck
     state: present
   become: true
 
@@ -258,14 +257,11 @@
   args:
     creates: "~/.local/bin/mise"
 
-- name: Add tldr, thefuck, mise inits to .zshrc
+- name: Add tldr, mise inits to .zshrc
   ansible.builtin.blockinfile:
     path: "~/.zshrc"
     marker: "# {mark} ANSIBLE MANAGED: EXTRA TOOLS"
     block: |
-      # thefuck – corrects last mistyped command (type: fuck)
-      eval "$(thefuck --alias)"
-
       # mise – per-project runtime versions (node, python, ruby, etc.)
       eval "$(~/.local/bin/mise activate zsh)"
 
