@@ -34,6 +34,8 @@
   vars:
     user_home: "{{ ansible_env.HOME }}"
     username: "{{ ansible_env.USER }}"
+    lazyvim_config_repo: "https://github.com/A1DS19/lzvim-config.git"
+    ghostty_config_repo: "https://github.com/A1DS19/ghostty-config.git"
 
   tasks:
     - name: Flatpak apps (DataGrip, Android Studio, Postman)
@@ -48,14 +50,11 @@
     - name: Anaconda
       include_tasks: tasks/anaconda.yml
 
-    - name: LunarVim
-      include_tasks: tasks/lvim.yml
-
-    - name: Neovim config
-      include_tasks: tasks/neovim-config.yml
+    - name: LazyVim
+      include_tasks: tasks/lazyvim.yml
 
     - name: AI CLIs (Claude, Gemini, Codex)
       include_tasks: tasks/ai-clis.yml
     
-    - name: Warp Terminal
+    - name: Ghostty Terminal
       include_tasks: tasks/terminal.yml

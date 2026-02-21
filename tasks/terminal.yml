@@ -1,10 +1,15 @@
 ---
-# 1. Install Warp Terminal
-- name: Install Warp Terminal from RPM URL
+# 1. Install Ghostty Terminal
+- name: Enable COPR repository for Ghostty
+  ansible.builtin.command:
+    cmd: dnf5 copr enable -y scottames/ghostty
+  changed_when: false
+  become: true
+
+- name: Install Ghostty
   ansible.builtin.dnf:
-    name: "https://app.warp.dev/download?package=rpm"
+    name: ghostty
     state: present
-    disable_gpg_check: true
   become: true
 
 # 2. Enable COPR repositories
@@ -156,3 +161,130 @@
     - { name: "delta.line-numbers",     value: "true" }
     - { name: "merge.conflictstyle",    value: "diff3" }
     - { name: "diff.colorMoved",        value: "default" }
+
+# 10. zsh-autocomplete – Warp-style real-time dropdown completions
+- name: Create ~/.zsh directory
+  ansible.builtin.file:
+    path: "~/.zsh"
+    state: directory
+    mode: '0755'
+
+- name: Clone zsh-autocomplete
+  ansible.builtin.git:
+    repo: "https://github.com/marlonrichert/zsh-autocomplete.git"
+    dest: "~/.zsh/zsh-autocomplete"
+    update: yes
+
+- name: Source zsh-autocomplete in .zshrc (must be first – before compinit and other plugins)
+  ansible.builtin.blockinfile:
+    path: "~/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: ZSH AUTOCOMPLETE"
+    insertbefore: BOF
+    block: |
+      # zsh-autocomplete – real-time dropdown completions (must be sourced before everything else)
+      source ~/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+
+# 11. Install zsh autocompletion plugins
+- name: Install zsh autocompletion plugins
+  ansible.builtin.dnf:
+    name:
+      - zsh-autosuggestions
+      - zsh-syntax-highlighting
+      - direnv
+    state: present
+  become: true
+
+- name: Source zsh autocompletion plugins in .zshrc
+  ansible.builtin.blockinfile:
+    path: "~/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: ZSH PLUGINS"
+    block: |
+      # zsh-autosuggestions – fish-like inline suggestions
+      source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+      ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+      ZSH_AUTOSUGGEST_USE_ASYNC=true
+      bindkey '^ ' autosuggest-accept   # Ctrl+Space to accept suggestion
+
+      # direnv – auto-load .env files per directory
+      eval "$(direnv hook zsh)"
+
+      # zsh-syntax-highlighting – real-time command colouring (must be last)
+      source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# 12. zellij – terminal multiplexer for session persistence (Ghostty tab restore)
+- name: Download zellij binary
+  ansible.builtin.get_url:
+    url: "https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz"
+    dest: "/tmp/zellij.tar.gz"
+    mode: '0644'
+
+- name: Extract zellij binary
+  ansible.builtin.unarchive:
+    src: "/tmp/zellij.tar.gz"
+    dest: "/tmp"
+    remote_src: true
+    creates: "/tmp/zellij"
+
+- name: Install zellij to /usr/local/bin
+  ansible.builtin.copy:
+    src: "/tmp/zellij"
+    dest: "/usr/local/bin/zellij"
+    mode: '0755'
+    remote_src: true
+  become: true
+
+- name: Auto-attach zellij session in .zshrc (restores tabs on Ghostty open)
+  ansible.builtin.blockinfile:
+    path: "~/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: ZELLIJ"
+    block: |
+      # zellij – immediately replace shell with zellij on every terminal open
+      if [[ -z "$ZELLIJ" ]]; then
+        exec zellij attach --create main
+      fi
+
+# 13. tldr, thefuck, mise
+- name: Install tldr and thefuck
+  ansible.builtin.dnf:
+    name:
+      - tldr
+      - thefuck
+    state: present
+  become: true
+
+- name: Install mise via install script
+  ansible.builtin.shell: |
+    curl https://mise.run | sh
+  args:
+    creates: "~/.local/bin/mise"
+
+- name: Add tldr, thefuck, mise inits to .zshrc
+  ansible.builtin.blockinfile:
+    path: "~/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED: EXTRA TOOLS"
+    block: |
+      # thefuck – corrects last mistyped command (type: fuck)
+      eval "$(thefuck --alias)"
+
+      # mise – per-project runtime versions (node, python, ruby, etc.)
+      eval "$(~/.local/bin/mise activate zsh)"
+
+# 15. Set up Ghostty config from repo
+- name: Create ~/.config/ghostty directory
+  ansible.builtin.file:
+    path: "~/.config/ghostty"
+    state: directory
+    mode: '0755'
+
+- name: Clone ghostty-config repo
+  ansible.builtin.git:
+    repo: "{{ ghostty_config_repo }}"
+    dest: "~/.local/share/ghostty-config"
+    update: yes
+
+- name: Symlink Ghostty config
+  ansible.builtin.file:
+    src: "~/.local/share/ghostty-config/config"
+    dest: "~/.config/ghostty/config"
+    state: link
+    force: true

@@ -32,7 +32,7 @@
       - wget
       - unzip
       - tar
-      # Editor deps (neovim for lvim)
+      # Editor deps (neovim + LazyVim)
       - neovim
       - ripgrep
       - fd-find

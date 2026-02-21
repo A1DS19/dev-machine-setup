@@ -1,0 +1,53 @@
+---
+# ── Dependencies ──────────────────────────────────────────────────────────
+- name: Install LazyVim system dependencies
+  ansible.builtin.dnf:
+    name:
+      - fd-find          # file finding (telescope)
+      - ripgrep          # live grep
+      - tree-sitter-cli  # required by nvim-treesitter >= LazyVim 15.x
+    state: present
+  become: true
+
+# ── Backup existing nvim config ───────────────────────────────────────────
+- name: Check if ~/.config/nvim exists
+  stat:
+    path: "{{ user_home }}/.config/nvim"
+  register: nvim_config_dir
+
+- name: Back up existing nvim config (timestamped)
+  command: >
+    mv {{ user_home }}/.config/nvim
+       {{ user_home }}/.config/nvim.bak.{{ ansible_date_time.epoch }}
+  when: nvim_config_dir.stat.exists and not nvim_config_dir.stat.islnk
+
+# ── Clone LazyVim config ──────────────────────────────────────────────────
+- name: Clone lzvim-config into ~/.config/nvim
+  git:
+    repo: "{{ lazyvim_config_repo }}"
+    dest: "{{ user_home }}/.config/nvim"
+    update: yes
+
+# ── Backup & remove old LunarVim artefacts ────────────────────────────────
+- name: Check if old lvim binary exists
+  stat:
+    path: "{{ user_home }}/.local/bin/lvim"
+  register: lvim_bin
+
+- name: Remove old lvim binary
+  file:
+    path: "{{ user_home }}/.local/bin/lvim"
+    state: absent
+  when: lvim_bin.stat.exists
+
+- name: Check if old LunarVim runtime dir exists
+  stat:
+    path: "{{ user_home }}/.local/share/lunarvim"
+  register: lvim_runtime
+
+- name: Back up old LunarVim runtime (large – optional)
+  command: >
+    mv {{ user_home }}/.local/share/lunarvim
+       {{ user_home }}/.local/share/lunarvim.bak
+  when: lvim_runtime.stat.exists
+  ignore_errors: true
